@@ -11,28 +11,28 @@ const Navigation: React.FC<NavigationProps> = ({ onSave }) => {
   const isBuilderRoute = location.pathname === "/builder";
 
   return (
-    <nav className="bg-white shadow-sm sticky top-0 z-10">
+    <nav className="bg-transparent backdrop-blur-sm shadow-sm sticky top-0 z-10 border-b border-gray-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             {isBuilderRoute ? (
               <Link
                 to="/"
-                className="bg-white text-gray-700 px-4 py-2 rounded hover:bg-gray-100 transition-colors shadow flex items-center gap-2"
+                className="px-4 py-2 rounded transition-colors flex items-center gap-2"
               >
                 <IoArrowBack />
-                Back to Home
+                Home
               </Link>
             ) : (
-              <h1 className="text-xl font-bold text-gray-900">
-                ChatFlow Builder
+              <h1 className="text-xl ">
+                bite<b>Speed</b> ChatFlow
               </h1>
             )}
           </div>
           {isBuilderRoute && onSave && (
             <button
               onClick={onSave}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+              className="text-white px-4 py-2 rounded border transition-colors"
             >
               Save Changes
             </button>

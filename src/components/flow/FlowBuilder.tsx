@@ -92,50 +92,44 @@ const FlowBuilder: React.FC = () => {
       return;
     }
 
-    const flowData = {
-      nodes,
-      edges,
-    };
-
-    console.log("Saving flow:", flowData);
     toast.success("Flow saved successfully!");
   }, [nodes, edges]);
 
   return (
     <>
       <Navigation onSave={handleSave} />
-      <div className="flex h-screen">
-      <div className="flex-1 relative" ref={reactFlowWrapper}>
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          onInit={setReactFlowInstance}
-          onDrop={onDrop}
-          onDragOver={onDragOver}
-          onNodeClick={onNodeClick}
-          nodeTypes={nodeTypes}
-          fitView
-        >
-          <Controls />
-          <MiniMap />
-          <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
-        </ReactFlow>
-      </div>
-      <div className="w-80 bg-gray-50 border-l border-gray-200 !p-4">
-        {selectedNode ? (
-          <SettingsPanel
-            node={selectedNode}
-            onUpdate={handleNodeUpdate}
-            onClose={() => setSelectedNode(null)}
-          />
-        ) : (
-          <NodesPanel />
-        )}
-      </div>
-      <ToastContainer position="top-center" />
+      <div className="flex h-[calc(100vh-64px)]">
+        <div className="flex-1 relative" ref={reactFlowWrapper}>
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            onInit={setReactFlowInstance}
+            onDrop={onDrop}
+            onDragOver={onDragOver}
+            onNodeClick={onNodeClick}
+            nodeTypes={nodeTypes}
+            fitView
+          >
+            <Controls />
+            <MiniMap />
+            <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+          </ReactFlow>
+        </div>
+        <div className="w-80 bg-gray-140 border-l border-gray-700 !p-4">
+          {selectedNode ? (
+            <SettingsPanel
+              node={selectedNode}
+              onUpdate={handleNodeUpdate}
+              onClose={() => setSelectedNode(null)}
+            />
+          ) : (
+            <NodesPanel />
+          )}
+        </div>
+        <ToastContainer position="top-center" />
       </div>
     </>
   );

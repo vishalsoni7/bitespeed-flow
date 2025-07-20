@@ -5,10 +5,21 @@ import FeaturesSection from "../components/home/FeaturesSection";
 
 const HomePage: React.FC = () => {
   return (
-    <div className="min-h-full bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div 
+      className="h-screen overflow-hidden flex flex-col"
+      style={{
+        backgroundImage: 'url(/biteSpeed-bg.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed'
+      }}
+    >
       <Navigation />
-      <HeroSection />
-      <FeaturesSection />
+      <div className="flex-1 overflow-y-auto">
+        <HeroSection />
+        <FeaturesSection />
+      </div>
     </div>
   );
 };
