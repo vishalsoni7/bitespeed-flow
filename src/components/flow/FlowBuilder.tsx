@@ -1,4 +1,4 @@
-import { useCallback, useState, useRef } from "react";
+import { useCallback, useState, useRef, useEffect } from "react";
 import ReactFlow, {
   ReactFlowProvider,
   addEdge,
@@ -11,29 +11,49 @@ import ReactFlow, {
 } from "reactflow";
 import type { Connection, Edge, Node, ReactFlowInstance } from "reactflow";
 import "reactflow/dist/style.css";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import toast from "react-hot-toast";
+import { SiOctanerender } from "react-icons/si";
+import { FaTrash } from "react-icons/fa";
 
 import NodesPanel from "../panels/NodesPanel";
 import SettingsPanel from "../panels/SettingsPanel";
-import TextMessageNode from "../nodes/TextMessageNode";
 import Navigation from "../home/Navigation";
 import { validateFlow, checkSourceNodeEdges } from "../../utils/flowValidation";
 import { createNode, updateNodeData } from "../../utils/nodeHelpers";
-
-const nodeTypes = {
-  textMessage: TextMessageNode,
-};
-
-const initialNodes: Node[] = [];
+import { useFlowPersistence } from "../../hooks/useFlowPersistence";
+import { nodeTypes } from "../../constants";
 
 const FlowBuilder: React.FC = () => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance | null>(null);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [showFlowsList, setShowFlowsList] = useState(false);
+  const [hasLoadedInitialState, setHasLoadedInitialState] = useState(false);
+
+  // Initialize nodes and edges with empty arrays first
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+  // Use flow persistence hook
+  const {
+    savedFlows,
+    currentFlowState,
+    saveFlow,
+    deleteFlow: deleteSavedFlow,
+  } = useFlowPersistence(nodes, edges);
+
+  // Load persisted state on mount
+  useEffect(() => {
+    if (!hasLoadedInitialState && currentFlowState.nodes.length > 0) {
+      setNodes(currentFlowState.nodes);
+      setEdges(currentFlowState.edges);
+      setHasLoadedInitialState(true);
+      if (currentFlowState.lastSaved) {
+        toast.success("Restored your previous work");
+      }
+    }
+  }, [currentFlowState, setNodes, setEdges, hasLoadedInitialState]);
 
   const onConnect = useCallback(
     (params: Edge | Connection) => {
@@ -92,13 +112,94 @@ const FlowBuilder: React.FC = () => {
       return;
     }
 
+    const flowName = prompt(
+      "Enter a name for this flow:",
+      `Flow ${savedFlows.length + 1}`
+    );
+    if (!flowName) return;
+
+    saveFlow(flowName);
+    setShowFlowsList(true);
     toast.success("Flow saved successfully!");
-  }, [nodes, edges]);
+  }, [nodes, edges, savedFlows, saveFlow]);
+
+  const loadFlow = useCallback(
+    (flow: { nodes: Node[]; edges: Edge[]; name: string }) => {
+      setNodes(flow.nodes);
+      setEdges(flow.edges);
+      setShowFlowsList(false);
+      toast.success(`Loaded flow: ${flow.name}`);
+    },
+    [setNodes, setEdges]
+  );
+
+  const deleteFlow = useCallback(
+    (flowId: string) => {
+      deleteSavedFlow(flowId);
+      toast.success("Flow deleted");
+    },
+    [deleteSavedFlow]
+  );
 
   return (
     <>
-      <Navigation onSave={handleSave} />
+      <Navigation
+        onSave={handleSave}
+        onToggleFlowsList={() => setShowFlowsList(!showFlowsList)}
+        showFlowsList={showFlowsList}
+      />
       <div className="flex h-[calc(100vh-64px)]">
+        {showFlowsList && (
+          <div className="w-50 border-r border-gray-700 p-4 overflow-y-auto">
+            <div className="flex justify-between items-center gap-3 mb-3">
+              <h3 className="text-lg font-semibold">Saved Flows</h3>
+              <button
+                onClick={() => setShowFlowsList(false)}
+                className="text-gray-400 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+            {savedFlows.length === 0 ? (
+              <p className="text-gray-400 text-sm">No saved flows yet</p>
+            ) : (
+              <div className="space-y-2">
+                {savedFlows.map((flow) => (
+                  <div
+                    key={flow.id}
+                    className="p-3 rounded-lg border border-gray-700 hover:border-gray-600 transition-colors"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <h4 className="text-white font-medium">{flow.name}</h4>
+                        <p className="text-gray-400 text-xs mt-1">
+                          {flow.nodes.length} nodes, {flow.edges.length} edges
+                        </p>
+                        <p className="text-gray-500 text-xs mt-1">
+                          {new Date(flow.timestamp).toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => loadFlow(flow)}
+                          className="text-blue-400 hover:text-blue-300 text-sm"
+                        >
+                          <SiOctanerender />
+                        </button>
+                        <button
+                          onClick={() => deleteFlow(flow.id)}
+                          className="text-red-400 hover:text-red-300 text-sm"
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
         <div className="flex-1 relative" ref={reactFlowWrapper}>
           <ReactFlow
             nodes={nodes}
@@ -118,7 +219,7 @@ const FlowBuilder: React.FC = () => {
             <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
           </ReactFlow>
         </div>
-        <div className="w-80 bg-gray-140 border-l border-gray-700 !p-4">
+        <div className="w-90 bg-gray-140 border-l border-gray-700 !p-4">
           {selectedNode ? (
             <SettingsPanel
               node={selectedNode}
@@ -129,7 +230,6 @@ const FlowBuilder: React.FC = () => {
             <NodesPanel />
           )}
         </div>
-        <ToastContainer position="top-center" />
       </div>
     </>
   );

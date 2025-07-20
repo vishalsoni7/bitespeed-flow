@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from "react";
-import type { Node } from "reactflow";
 import { IoArrowBack } from "react-icons/io5";
-
-interface SettingsPanelProps {
-  node: Node;
-  onUpdate: (nodeId: string, newData: Record<string, unknown>) => void;
-  onClose: () => void;
-}
+import type { SettingsPanelProps } from "../../types";
 
 const SettingsPanel: React.FC<SettingsPanelProps> = ({
   node,

@@ -1,12 +1,13 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
+import type { NavigationProps } from "../../types";
 
-interface NavigationProps {
-  onSave?: () => void;
-}
-
-const Navigation: React.FC<NavigationProps> = ({ onSave }) => {
+const Navigation: React.FC<NavigationProps> = ({
+  onSave,
+  onToggleFlowsList,
+  showFlowsList,
+}) => {
   const location = useLocation();
   const isBuilderRoute = location.pathname === "/builder";
 
@@ -29,13 +30,25 @@ const Navigation: React.FC<NavigationProps> = ({ onSave }) => {
               </h1>
             )}
           </div>
-          {isBuilderRoute && onSave && (
-            <button
-              onClick={onSave}
-              className="text-white px-4 py-2 rounded border transition-colors"
-            >
-              Save Changes
-            </button>
+          {isBuilderRoute && (
+            <div className="flex gap-2">
+              {onSave && (
+                <button
+                  onClick={onSave}
+                  className="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2.5 rounded transition-colors"
+                >
+                  Save Flow
+                </button>
+              )}
+              {onToggleFlowsList && (
+                <button
+                  onClick={onToggleFlowsList}
+                  className="text-white py-1 px-2.5 rounded border border-gray-600 hover:bg-gray-700 transition-colors"
+                >
+                  {showFlowsList ? "Hide Flows" : "Show Flows"}
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>

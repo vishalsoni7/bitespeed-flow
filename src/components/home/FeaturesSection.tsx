@@ -1,29 +1,5 @@
 import React from "react";
-import { FaNodeJs, FaConnectdevelop } from "react-icons/fa";
-
-interface Feature {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  colorClass: string;
-}
-
-const features: Feature[] = [
-  {
-    icon: <FaNodeJs className="text-blue-600 text-2xl" />,
-    title: "Drag & Drop Nodes",
-    description:
-      "Simply drag message nodes from the panel and drop them onto the canvas to start building your flow.",
-    colorClass: "bg-blue-100",
-  },
-  {
-    icon: <FaConnectdevelop className="text-green-600 text-2xl" />,
-    title: "Connect Nodes",
-    description:
-      "Create conversation flows by connecting nodes together. Each source can have one outgoing connection.",
-    colorClass: "bg-green-100",
-  },
-];
+import { features } from "../../constants";
 
 const FeaturesSection: React.FC = () => {
   return (

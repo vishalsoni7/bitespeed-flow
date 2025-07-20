@@ -1,9 +1,5 @@
 import React from 'react';
-
-interface LayoutProps {
-  children: React.ReactNode;
-  fullWidth?: boolean;
-}
+import type { LayoutProps } from '../types';
 
 const Layout: React.FC<LayoutProps> = ({ children, fullWidth = false }) => {
   if (fullWidth) {
