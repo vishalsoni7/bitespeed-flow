@@ -1,4 +1,4 @@
-import { useCallback, useState, useRef, useEffect } from "react";
+import { useCallback, useState, useRef } from "react";
 import ReactFlow, {
   ReactFlowProvider,
   addEdge,
@@ -29,7 +29,6 @@ const FlowBuilder: React.FC = () => {
     useState<ReactFlowInstance | null>(null);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [showFlowsList, setShowFlowsList] = useState(false);
-  const [hasLoadedInitialState, setHasLoadedInitialState] = useState(false);
 
   // Initialize nodes and edges with empty arrays first
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -38,22 +37,9 @@ const FlowBuilder: React.FC = () => {
   // Use flow persistence hook
   const {
     savedFlows,
-    currentFlowState,
     saveFlow,
     deleteFlow: deleteSavedFlow,
   } = useFlowPersistence(nodes, edges);
-
-  // Load persisted state on mount
-  useEffect(() => {
-    if (!hasLoadedInitialState && currentFlowState.nodes.length > 0) {
-      setNodes(currentFlowState.nodes);
-      setEdges(currentFlowState.edges);
-      setHasLoadedInitialState(true);
-      if (currentFlowState.lastSaved) {
-        toast.success("Restored your previous work");
-      }
-    }
-  }, [currentFlowState, setNodes, setEdges, hasLoadedInitialState]);
 
   const onConnect = useCallback(
     (params: Edge | Connection) => {
@@ -119,16 +105,28 @@ const FlowBuilder: React.FC = () => {
     if (!flowName) return;
 
     saveFlow(flowName);
+    // Clear the ReactFlow after saving
+    setNodes([]);
+    setEdges([]);
+    setSelectedNode(null);
     setShowFlowsList(true);
     toast.success("Flow saved successfully!");
-  }, [nodes, edges, savedFlows, saveFlow]);
+  }, [nodes, edges, savedFlows, saveFlow, setNodes, setEdges]);
 
   const loadFlow = useCallback(
     (flow: { nodes: Node[]; edges: Edge[]; name: string }) => {
-      setNodes(flow.nodes);
-      setEdges(flow.edges);
-      setShowFlowsList(false);
-      toast.success(`Loaded flow: ${flow.name}`);
+      // Clear current flow and load the selected one
+      setNodes([]);
+      setEdges([]);
+      setSelectedNode(null);
+      
+      // Use setTimeout to ensure state is cleared before loading new flow
+      setTimeout(() => {
+        setNodes(flow.nodes);
+        setEdges(flow.edges);
+        setShowFlowsList(false);
+        toast.success(`Loaded flow: ${flow.name}`);
+      }, 0);
     },
     [setNodes, setEdges]
   );
