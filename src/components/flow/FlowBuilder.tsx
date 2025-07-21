@@ -14,6 +14,7 @@ import "reactflow/dist/style.css";
 import toast from "react-hot-toast";
 import { SiOctanerender } from "react-icons/si";
 import { FaTrash } from "react-icons/fa";
+import { AiOutlineDesktop } from "react-icons/ai";
 
 import NodesPanel from "../panels/NodesPanel";
 import SettingsPanel from "../panels/SettingsPanel";
@@ -21,7 +22,7 @@ import Navigation from "../home/Navigation";
 import { validateFlow, checkSourceNodeEdges } from "../../utils/flowValidation";
 import { createNode, updateNodeData } from "../../utils/nodeHelpers";
 import { useFlowPersistence } from "../../hooks/useFlowPersistence";
-import { nodeTypes } from "../../constants";
+import { nodeTypes, MESSAGES } from "../../constants";
 
 const FlowBuilder: React.FC = () => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
@@ -146,7 +147,19 @@ const FlowBuilder: React.FC = () => {
         onToggleFlowsList={() => setShowFlowsList(!showFlowsList)}
         showFlowsList={showFlowsList}
       />
-      <div className="flex h-[calc(100vh-64px)]">
+      {/* Mobile Warning - Show only this on mobile */}
+      <div className="block md:hidden h-[calc(100vh-64px)] bg-gray-900 flex items-center justify-center px-4">
+        <div className="bg-yellow-500 text-black px-6 py-4 rounded-lg shadow-lg max-w-sm">
+          <div className="flex items-center justify-center gap-3">
+            <AiOutlineDesktop className="text-2xl" />
+            <span className="text-sm font-medium">
+              {MESSAGES.MOBILE_WARNING}
+            </span>
+          </div>
+        </div>
+      </div>
+      {/* Desktop Content - Hidden on mobile */}
+      <div className="hidden md:flex h-[calc(100vh-64px)]">
         {showFlowsList && (
           <div className="w-50 border-r border-gray-700 p-4 overflow-y-auto">
             <div className="flex justify-between items-center gap-3 mb-3">

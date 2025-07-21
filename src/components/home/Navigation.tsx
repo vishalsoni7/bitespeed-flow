@@ -31,7 +31,7 @@ const Navigation: React.FC<NavigationProps> = ({
             )}
           </div>
           {isBuilderRoute && (
-            <div className="flex gap-2">
+            <div className="hidden md:flex gap-2">
               {onSave && (
                 <button
                   onClick={onSave}
